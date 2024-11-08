@@ -1,4 +1,10 @@
 .root
 {
-    -fx-background-color:blue;
+    -fx-background-color:cyan;
+}
+.button {
+    -fx-background-radius: 180px;
+}
+.text-field {
+    -fx-background-radius: 180px;
 }

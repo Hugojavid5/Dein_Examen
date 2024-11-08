@@ -32,7 +32,6 @@ import java.sql.SQLException;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-
 public class ProductosAppController implements Initializable {
     private Blob imagenProducto;
 
@@ -72,10 +71,13 @@ public class ProductosAppController implements Initializable {
     @FXML
     private TextField txt_Precio;
 
+    /**
+     * Método de inicialización que configura la tabla, las columnas y el listener de selección.
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         this.imagenProducto = null;
-        // Columnas de la tabla
+        // Configuración de las columnas de la tabla
         colCodigo.setCellValueFactory(new PropertyValueFactory<>("codigo"));
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         colPrecio.setCellValueFactory(new PropertyValueFactory<>("precio"));
@@ -85,7 +87,8 @@ public class ProductosAppController implements Initializable {
             return new ReadOnlyBooleanWrapper(v);
         });
         colDisponible.setCellFactory(CheckBoxTableCell.<ProductoModel>forTableColumn(colDisponible));
-        // ContextMenu
+
+        // Configuración del ContextMenu en la tabla
         ContextMenu contextMenu = new ContextMenu();
         MenuItem verImagenItem = new MenuItem("Ver imagen");
         MenuItem borrarItem = new MenuItem("Eliminar");
@@ -102,11 +105,13 @@ public class ProductosAppController implements Initializable {
             });
             return row;
         });
+
         // Añadir listener para cuando se selecciona un item de la tabla
         tabla.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<ProductoModel>() {
             @Override
             public void changed(ObservableValue<? extends ProductoModel> observableValue, ProductoModel oldValue, ProductoModel newValue) {
                 if (newValue != null) {
+                    // Actualizar los campos con los datos del producto seleccionado
                     txt_Codigo.setText(newValue.getCodigo());
                     txt_Codigo.setDisable(true);
                     txt_Nombre.setText(newValue.getNombre());
@@ -128,16 +133,23 @@ public class ProductosAppController implements Initializable {
                 }
             }
         });
-        // Cargar productos
+
+        // Cargar los productos al iniciar la vista
         cargarTabla();
     }
 
+    /**
+     * Carga los productos en la tabla.
+     */
     public void cargarTabla() {
         tabla.getItems().clear();
         limpiar(null);
         tabla.setItems(DaoProducto.cargarListado());
     }
 
+    /**
+     * Muestra la imagen del producto seleccionado en una ventana modal.
+     */
     private void verImagen(ActionEvent actionEvent) {
         ProductoModel producto = tabla.getSelectionModel().getSelectedItem();
         if (producto == null) {
@@ -164,12 +176,15 @@ public class ProductosAppController implements Initializable {
                     stage.getIcons().add(new Image(ProductosApp.class.getResourceAsStream("/Imagenes/carrito.png")));
                     stage.showAndWait();
                 } catch (SQLException e) {
-                    //e.printStackTrace();
                     alerta("No se ha podido cargar la imagen");
                 }
             }
         }
     }
+
+    /**
+     * Elimina el producto seleccionado de la base de datos.
+     */
     private void eliminar(ActionEvent actionEvent) {
         ProductoModel producto = tabla.getSelectionModel().getSelectedItem();
         if (producto == null) {
@@ -192,6 +207,9 @@ public class ProductosAppController implements Initializable {
         }
     }
 
+    /**
+     * Actualiza un producto en la base de datos con los nuevos datos.
+     */
     @FXML
     void actualizar(ActionEvent event) {
         String error = validar();
@@ -211,7 +229,9 @@ public class ProductosAppController implements Initializable {
         }
     }
 
-
+    /**
+     * Crea un nuevo producto en la base de datos.
+     */
     @FXML
     void crear(ActionEvent event) {
         if (txt_Codigo.getText().isEmpty()) {
@@ -244,6 +264,9 @@ public class ProductosAppController implements Initializable {
         }
     }
 
+    /**
+     * Valida los campos de texto para crear o actualizar un producto.
+     */
     public String validar() {
         String error = "";
         if (txt_Nombre.getText().isEmpty()) {
@@ -261,72 +284,56 @@ public class ProductosAppController implements Initializable {
         return error;
     }
 
+    /**
+     * Muestra información sobre la aplicación.
+     */
     @FXML
     void acercaDe(ActionEvent event) {
-        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
-        alerta.setHeaderText(null);
-        alerta.setTitle("info");
-        String info = "Gestion de productos 1.0\n";
-        info += "Autor:Hugo Javid";
-        alerta.setContentText(info);
-        Stage alertaStage = (Stage) alerta.getDialogPane().getScene().getWindow();
-        alertaStage.getIcons().add(new Image(ProductosApp.class.getResourceAsStream("/Imagenes/carrito.png")));
-        alerta.showAndWait();
+        alertInfo("Proyecto Examen", "Examen DEIN. Hugo. V1.0");
     }
 
-    @FXML
-    void limpiar(ActionEvent event) {
-        imagenProducto = null;
-        txt_Codigo.setText("");
-        txt_Codigo.setDisable(false);
-        txt_Nombre.setText("");
-        txt_Precio.setText("");
+    /**
+     * Limpia los campos de texto.
+     */
+    public void limpiar(ActionEvent actionEvent) {
+        txt_Codigo.clear();
+        txt_Nombre.clear();
+        txt_Precio.clear();
         cbDisponible.setSelected(false);
         imagen.setImage(null);
-        btt_Crear.setDisable(false);
         btt_Actualizar.setDisable(true);
-        tabla.getSelectionModel().clearSelection();
+        btt_Crear.setDisable(false);
+        txt_Codigo.setDisable(false);
+        imagenProducto = null;
     }
 
-    @FXML
-    void seleccionarImagen(ActionEvent event) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Seleccione una imagen");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files","*.jpg", "*.jpeg","*.png"));
-        fileChooser.setInitialDirectory(new File("."));
-        File file = fileChooser.showOpenDialog(null);
-        try {
-            double kbs = (double) file.length() / 1024;
-            if (kbs > 64) {
-                alerta("");
-            } else {
-                InputStream image = new FileInputStream(file);
-                Blob blob = DaoProducto.convertFileToBlob(file);
-                imagenProducto = blob;
-                imagen.setImage(new Image(image));
-                imagen.setDisable(false);
-            }
-        } catch (IOException | NullPointerException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
-            //e.printStackTrace();
-            alerta("No se ha podido convertir la imagen al formato Blob");
-        }
+    /**
+     * Muestra una alerta con el mensaje proporcionado.
+     */
+    public void alerta(String mensaje) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setHeaderText(null);
+        alert.setContentText(mensaje);
+        alert.showAndWait();
     }
 
-    public void alerta(String texto) {
-        Alert alerta = new Alert(Alert.AlertType.ERROR);
-        alerta.setHeaderText(null);
-        alerta.setTitle("Error");
-        alerta.setContentText(texto);
-        alerta.showAndWait();
+    /**
+     * Muestra una alerta de confirmación con el mensaje proporcionado.
+     */
+    public void confirmacion(String mensaje) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setHeaderText(null);
+        alert.setContentText(mensaje);
+        alert.showAndWait();
     }
 
-    public void confirmacion(String texto) {
-        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
-        alerta.setHeaderText(null);
-        alerta.setTitle("Info");
-        alerta.setContentText(texto);
-        alerta.showAndWait();
+    /**
+     * Muestra una alerta de información con el mensaje proporcionado.
+     */
+    public void alertInfo(String titulo, String mensaje) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setHeaderText(titulo);
+        alert.setContentText(mensaje);
+        alert.showAndWait();
     }
 }

@@ -10,15 +10,16 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 /**
- * Clase que gestiona la conexión a la base de datos.
- * Utiliza un archivo de configuración para obtener los parámetros de conexión.
+ * Clase para gestionar la conexión a la base de datos.
+ * Proporciona métodos para obtener una conexión y cerrarla.
  */
 public class ConexionBBDD {
     private static Connection connection;
 
     /**
-     * Constructor de la clase, que establece la conexión con la base de datos si no está ya establecida.
-     * @throws SQLException Si ocurre un error al intentar conectar con la base de datos.
+     * Constructor de la clase. Establece una conexión a la base de datos si no existe o si está cerrada.
+     *
+     * @throws SQLException Si ocurre un error al establecer la conexión.
      */
     public ConexionBBDD() throws SQLException {
         if (connection == null || connection.isClosed()) {
@@ -37,8 +38,8 @@ public class ConexionBBDD {
     }
 
     /**
-     * Obtiene la conexión a la base de datos. Si la conexión no está establecida o está cerrada,
-     * se crea una nueva.
+     * Obtiene la conexión a la base de datos. Si no existe o está cerrada, se establece una nueva conexión.
+     *
      * @return La conexión a la base de datos.
      * @throws SQLException Si ocurre un error al obtener la conexión.
      */
@@ -51,7 +52,8 @@ public class ConexionBBDD {
 
     /**
      * Cierra la conexión a la base de datos si está abierta.
-     * @throws SQLException Si ocurre un error al intentar cerrar la conexión.
+     *
+     * @throws SQLException Si ocurre un error al cerrar la conexión.
      */
     public static void closeConnection() throws SQLException {
         if (connection != null && !connection.isClosed()) {
@@ -60,10 +62,9 @@ public class ConexionBBDD {
     }
 
     /**
-     * Lee el archivo de configuración y obtiene los parámetros necesarios para la conexión
-     * a la base de datos.
-     * @return Un objeto Properties con los parámetros de configuración.
-     * @throws RuntimeException Si ocurre un error al leer el archivo de configuración.
+     * Carga la configuración de la base de datos desde el archivo "configuration.properties".
+     *
+     * @return Las propiedades de configuración leídas del archivo.
      */
     private static Properties getConfiguracion() {
         Properties properties = new Properties();
