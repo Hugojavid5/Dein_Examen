@@ -5,7 +5,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
-public class HelloApplication extends Application {
+public class ProductosApp extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/inicio.fxml"));

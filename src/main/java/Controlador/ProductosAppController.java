@@ -1,122 +1,167 @@
 package Controlador;
 
-import BBDD.ConexionBBDD;
+import Dao.DaoProducto;
 import Model.ProductoModel;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.beans.property.ReadOnlyBooleanWrapper;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.sql.Blob;
 import java.sql.SQLException;
+import java.util.ResourceBundle;
 
 
-public class ProductosAppController {
-    @FXML
-    private MenuBar Meu_item_acercaDe;
-    @FXML
-    private MenuItem menuItem_acercaDe;
-    @FXML
-    private TableView<ProductoModel> productosTable;
-    @FXML
-    private Label lbl_codProd;
-    @FXML
-    private Label lbl_nombre,lbl_precio,lbl_imagen;
+public class ProductosAppController implements Initializable {
 
     @FXML
-    private TableView tabla;
-    @FXML
-    private TextField txt_codProd, txt_nombre, txt_precio;
-    @FXML
-    private Button btt_crear, btt_actualizar, btt_limpiar,btt_secIma;
-    @FXML
-    private ImageView imagenView;
-
-    private ObservableList<ProductoModel> productosList = FXCollections.observableArrayList();
+    private Button btt_actualizar;
 
     @FXML
-    public void initialize() {
-        cargarProductos();
-        btt_actualizar.setDisable(true);
-        productosTable.setItems(productosList);
+    private Button btt_crear;
+
+    @FXML
+    private CheckBox cb_Disponible;
+
+    @FXML
+    private TableColumn<String, ProductoModel> colCodigo;
+
+    @FXML
+    private TableColumn<Boolean, ProductoModel> colDisponible;
+
+    @FXML
+    private TableColumn<String, ProductoModel> colNombre;
+
+    @FXML
+    private TableColumn<Float, ProductoModel> colPrecio;
+
+    @FXML
+    private ImageView imagen;
+
+    @FXML
+    private TableView<ProductoModel> tabla;
+
+    @FXML
+    private TextField txt_Codigo;
+
+    @FXML
+    private TextField txt_Nombre;
+
+    @FXML
+    private TextField txt_Precio;
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        // Configuración de las columnas de la tabla
+        colCodigo.setCellValueFactory(new PropertyValueFactory<>("codigo"));
+        colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
+        colPrecio.setCellValueFactory(new PropertyValueFactory<>("precio"));
+        colDisponible.setCellValueFactory(cellData -> cellData.getValue().isDisponibleProperty());
+
+        // Columna de disponible como CheckBox
+        colDisponible.setCellFactory(CheckBoxTableCell.forTableColumn(colDisponible));
+
+        // ContextMenu
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem verImagenItem = new MenuItem("Ver imagen");
+        MenuItem borrarItem = new MenuItem("Eliminar");
+        contextMenu.getItems().addAll(verImagenItem, borrarItem);
+        verImagenItem.setOnAction(this::verImagen);
+        borrarItem.setOnAction(this::eliminar);
+        tabla.setRowFactory(tv -> {
+            TableRow<ProductoModel> row = new TableRow<>();
+            row.setOnContextMenuRequested(event -> {
+                if (!row.isEmpty()) {
+                    tabla.getSelectionModel().select(row.getItem());
+                    contextMenu.show(row, event.getScreenX(), event.getScreenY());
+                }
+            });
+            return row;
+        });
+
+        // Cargar productos
+        cargarTabla();
     }
 
-    private void cargarProductos() {
-        productosList.clear();
-        try (Connection conn = ConexionBBDD.getConnection();
-             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM productos")) {
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                ProductoModel producto = new ProductoModel(
-                        rs.getString("codigo"),
-                        rs.getString("nombre"),
-                        rs.getDouble("precio"),
-                        rs.getString("imagen")
-                );
-                productosList.add(producto);
-            }
-        } catch (SQLException e) {
-            mostrarAlerta("Error", "Error al cargar productos", Alert.AlertType.ERROR);
-        }
-    }
 
+    public void cargarTabla() {
+        tabla.setItems(DaoProducto.cargarListado());
+    }
     @FXML
-    public void crearProducto() {
-        String codigo = txt_codProd.getText();
-        String nombre = txt_nombre.getText();
-        double precio = Double.parseDouble(txt_precio.getText());
+    void actualizar(ActionEvent event) {
 
-        if (!validarCampos(codigo, nombre, precio)) return;
-
-        try (Connection conn = ConexionBBDD.getConnection();
-             PreparedStatement stmt = conn.prepareStatement("INSERT INTO productos (codigo, nombre, precio) VALUES (?, ?, ?)")) {
-            stmt.setString(1, codigo);
-            stmt.setString(2, nombre);
-            stmt.setDouble(3, precio);
-            stmt.executeUpdate();
-            mostrarAlerta("Éxito", "Producto creado con éxito", Alert.AlertType.INFORMATION);
-            cargarProductos();
-            limpiarCampos();
-        } catch (SQLException e) {
-            mostrarAlerta("Error", "Error al guardar producto", Alert.AlertType.ERROR);
-        }
-    }
-
-    private boolean validarCampos(String codigo, String nombre, double precio) {
-        if (codigo.length() != 5 || nombre.isEmpty() || precio <= 0) {
-            mostrarAlerta("Validación", "Campos inválidos", Alert.AlertType.WARNING);
-            return false;
-        }
-        return true;
-    }
-
-    private void mostrarAlerta(String titulo, String contenido, Alert.AlertType tipo) {
-        Alert alert = new Alert(tipo);
-        alert.setTitle(titulo);
-        alert.setContentText(contenido);
-        alert.showAndWait();
     }
 
     @FXML
-    public void seleccionarImagen() {
+    void crear(ActionEvent event) {
+
+    }
+
+    @FXML
+    void limpiar(ActionEvent event) {
+
+    }
+
+    @FXML
+    void seleccionarImagen(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Imágenes", "*.jpg", "*.png"));
-        var archivo = fileChooser.showOpenDialog(null);
-        if (archivo != null) {
-            imagenView.setImage(new Image(archivo.toURI().toString()));
+        fileChooser.setTitle("Seleccione una imagen");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files","*.jpg", "*.jpeg","*.png"));
+        fileChooser.setInitialDirectory(new File("."));
+        File file = fileChooser.showOpenDialog(null);
+        try {
+            double kbs = (double) file.length() / 1024;
+            if (kbs > 64) {
+                alerta("");
+            } else {
+                InputStream image = new FileInputStream(file);
+                Blob blob = DaoProducto.convertFileToBlob(file);
+                imagen.setImage(new Image(image));
+                imagen.setDisable(false);
+            }
+        } catch (IOException | NullPointerException e) {
+            //e.printStackTrace();
+            System.out.println("Imagen no seleccionada");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            alerta("No se ha podido ");
         }
     }
 
-    @FXML
-    public void limpiarCampos() {
-        txt_codProd.clear();
-        txt_nombre.clear();
-        txt_precio.clear();
-        imagenView.setImage(null);
+    /**
+     * Función que muestra un mensaje de alerta al usuario
+     *
+     * @param texto contenido de la alerta
+     */
+    public void alerta(String texto) {
+        Alert alerta = new Alert(Alert.AlertType.ERROR);
+        alerta.setHeaderText(null);
+        alerta.setTitle("Error");
+        alerta.setContentText(texto);
+        alerta.showAndWait();
+    }
+
+    /**
+     * Función que muestra un mensaje de confirmación al usuario
+     *
+     * @param texto contenido del mensaje
+     */
+    public void confirmacion(String texto) {
+        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
+        alerta.setHeaderText(null);
+        alerta.setTitle("Info");
+        alerta.setContentText(texto);
+        alerta.showAndWait();
     }
 }
