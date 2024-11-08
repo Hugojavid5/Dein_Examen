@@ -12,6 +12,9 @@ public class ProductosApp extends Application {
         Scene scene = new Scene(loader.load());
         stage.setScene(scene);
         stage.setTitle("Productos");
+        stage.setMinWidth(700);
+        stage.setMinHeight(600);
+        stage.setResizable(false);
         stage.getIcons().add(new Image(getClass().getResourceAsStream("/Imagenes/carrito.png")));
         stage.show();
     }

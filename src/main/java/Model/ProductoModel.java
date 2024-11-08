@@ -1,54 +1,58 @@
 package Model;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.FloatProperty;
-import javafx.beans.property.ReadOnlyBooleanWrapper;
-import javafx.beans.property.StringProperty;
-import javafx.beans.property.FloatProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleFloatProperty;
-import javafx.beans.property.SimpleStringProperty;
-
 import java.sql.Blob;
 import java.util.Objects;
 
-public class ProductoModel {
 
-    private StringProperty codigo;
-    private StringProperty nombre;
-    private FloatProperty precio;
-    private BooleanProperty disponible;
+public class ProductoModel {
+    private String codigo;
+    private String nombre;
+    private float precio;
+    private boolean disponible;
     private Blob imagen;
 
     public ProductoModel(String codigo, String nombre, float precio, boolean disponible, Blob imagen) {
-        this.codigo = new SimpleStringProperty(codigo);
-        this.nombre = new SimpleStringProperty(nombre);
-        this.precio = new SimpleFloatProperty(precio);
-        this.disponible = new SimpleBooleanProperty(disponible);
+        this.codigo = codigo;
+        this.nombre = nombre;
+        this.precio = precio;
+        this.disponible = disponible;
         this.imagen = imagen;
     }
 
-    public ProductoModel() {
-        this.codigo = new SimpleStringProperty();
-        this.nombre = new SimpleStringProperty();
-        this.precio = new SimpleFloatProperty();
-        this.disponible = new SimpleBooleanProperty();
-    }
 
-    public StringProperty getCodigoProperty() {
+    public ProductoModel() {}
+
+    public String getCodigo() {
         return codigo;
     }
 
-    public StringProperty getNombreProperty() {
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
+    }
+
+    public String getNombre() {
         return nombre;
     }
 
-    public FloatProperty getPrecioProperty() {
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public float getPrecio() {
         return precio;
     }
 
-    public BooleanProperty isDisponibleProperty() {
+    public void setPrecio(float precio) {
+        this.precio = precio;
+    }
+
+    public boolean isDisponible() {
         return disponible;
+    }
+
+
+    public void setDisponible(boolean disponible) {
+        this.disponible = disponible;
     }
 
     public Blob getImagen() {
@@ -64,11 +68,11 @@ public class ProductoModel {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ProductoModel producto = (ProductoModel) o;
-        return Objects.equals(codigo.get(), producto.codigo.get());
+        return Objects.equals(codigo, producto.codigo);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(codigo.get());
+        return Objects.hashCode(codigo);
     }
 }

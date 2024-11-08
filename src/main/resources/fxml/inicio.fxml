@@ -23,7 +23,7 @@
             <menus>
                 <Menu mnemonicParsing="false" text="Ayuda">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="Acerca de…" />
+                        <MenuItem mnemonicParsing="false" onAction="#acercaDe" text="Acerca de....." />
                     </items>
                 </Menu>
             </menus>
@@ -47,7 +47,7 @@
                 <TextField fx:id="txt_Nombre" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                 <Label text="Precio:" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
                 <TextField fx:id="txt_Precio" maxWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                <CheckBox fx:id="cb_Disponible" mnemonicParsing="false" text="Disponible" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                <CheckBox fx:id="cbDisponible" mnemonicParsing="false" text="Disponible" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                 <Label text="Imagen:" GridPane.halignment="RIGHT" GridPane.rowIndex="4" />
                 <FlowPane alignment="CENTER_LEFT" columnHalignment="CENTER" hgap="50.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
                     <children>
@@ -65,9 +65,9 @@
         </GridPane>
         <FlowPane alignment="CENTER" columnHalignment="CENTER" hgap="50.0">
             <children>
-                <Button fx:id="btt_crear" mnemonicParsing="false" onAction="#crear" text="Crear" />
-                <Button fx:id="btt_actualizar" mnemonicParsing="false" onAction="#actualizar" text="Actualizar" />
-                <Button mnemonicParsing="false" onAction="#limpiar" text="Limpiar" />
+                <Button fx:id="btt_Crear" defaultButton="true" mnemonicParsing="false" onAction="#crear" text="Crear" />
+                <Button fx:id="btt_Actualizar" defaultButton="true" disable="true" mnemonicParsing="false" onAction="#actualizar" text="Actualizar" />
+                <Button cancelButton="true" mnemonicParsing="false" onAction="#limpiar" text="Limpiar" />
             </children>
             <VBox.margin>
                 <Insets bottom="10.0" />
@@ -78,7 +78,7 @@
                 <TableColumn fx:id="colCodigo" prefWidth="149.0" text="CÓDIGO" />
                 <TableColumn fx:id="colNombre" prefWidth="164.0" text="NOMBRE" />
                 <TableColumn fx:id="colPrecio" prefWidth="119.0" text="PRECIO" />
-                <TableColumn fx:id="colDisponible" prefWidth="167.0" text="DISPONIBLE" />
+                <TableColumn fx:id="colDisponible" prefWidth="139.0" text="DISPONIBLE" />
             </columns>
             <VBox.margin>
                 <Insets bottom="10.0" left="10.0" right="10.0" />
