@@ -14,37 +14,50 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 
-public class ProductoController {
+
+public class ProductosAppController {
     @FXML
-    private TableView<Producto> productosTable;
+    private MenuBar Meu_item_acercaDe;
     @FXML
-    private TextField codigoField, nombreField, precioField;
+    private MenuItem menuItem_acercaDe;
     @FXML
-    private Button crearButton, actualizarButton, limpiarButton;
+    private TableView<ProductoModel> productosTable;
+    @FXML
+    private Label lbl_codProd;
+    @FXML
+    private Label lbl_nombre,lbl_precio,lbl_imagen;
+
+    @FXML
+    private TableView tabla;
+    @FXML
+    private TextField txt_codProd, txt_nombre, txt_precio;
+    @FXML
+    private Button btt_crear, btt_actualizar, btt_limpiar,btt_secIma;
     @FXML
     private ImageView imagenView;
 
-    private ObservableList<Producto> productosList = FXCollections.observableArrayList();
+    private ObservableList<ProductoModel> productosList = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
         cargarProductos();
-        actualizarButton.setDisable(true);
+        btt_actualizar.setDisable(true);
         productosTable.setItems(productosList);
     }
 
     private void cargarProductos() {
         productosList.clear();
-        try (Connection conn = DatabaseConnector.connect();
+        try (Connection conn = ConexionBBDD.getConnection();
              PreparedStatement stmt = conn.prepareStatement("SELECT * FROM productos")) {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                Producto producto = new Producto(rs.getString("codigo"),
+                ProductoModel producto = new ProductoModel(
+                        rs.getString("codigo"),
                         rs.getString("nombre"),
                         rs.getDouble("precio"),
-                        rs.getString("imagen"));
+                        rs.getString("imagen")
+                );
                 productosList.add(producto);
             }
         } catch (SQLException e) {
@@ -54,13 +67,13 @@ public class ProductoController {
 
     @FXML
     public void crearProducto() {
-        String codigo = codigoField.getText();
-        String nombre = nombreField.getText();
-        double precio = Double.parseDouble(precioField.getText());
+        String codigo = txt_codProd.getText();
+        String nombre = txt_nombre.getText();
+        double precio = Double.parseDouble(txt_precio.getText());
 
         if (!validarCampos(codigo, nombre, precio)) return;
 
-        try (Connection conn = DatabaseConnector.connect();
+        try (Connection conn = ConexionBBDD.getConnection();
              PreparedStatement stmt = conn.prepareStatement("INSERT INTO productos (codigo, nombre, precio) VALUES (?, ?, ?)")) {
             stmt.setString(1, codigo);
             stmt.setString(2, nombre);
@@ -101,9 +114,9 @@ public class ProductoController {
 
     @FXML
     public void limpiarCampos() {
-        codigoField.clear();
-        nombreField.clear();
-        precioField.clear();
+        txt_codProd.clear();
+        txt_nombre.clear();
+        txt_precio.clear();
         imagenView.setImage(null);
     }
 }
